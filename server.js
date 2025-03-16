@@ -4,11 +4,11 @@ const mysql = require('mysql2');
 const path = require('path');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const stripe = require('stripe')('sk_test_51PsVavGFxGSFALoa45q69uIUCnZMLe9IYc8wnrcb9sz3ymIFXNJmFUuaBIJn5U2AKCWlKFGqCFs6ZzKpodEeVzzy00DOkF7aYR'); // Add your Stripe secret key
+const stripe = require('stripe')(''); // Add your Stripe secret key
 const app = express();
 const cors = require('cors');  // Import the CORS package
 const googleMapsClient = require('@google/maps').createClient({
-    key: 'AIzaSyB9irjntPHdEJf024h7H_XKpS11OeW1Nh8&libraries=places&callback=initAutocomplete' // replace with your actual Google Maps API key
+    key: '' // replace with your actual Google Maps API key
 });
 // Middleware
 app.use(bodyParser.json());
