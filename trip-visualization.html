@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Trip Visualization</title>
+    <link rel="stylesheet" href="css/adminlte.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="dist/css/adminlte.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB9irjntPHdEJf024h7H_XKpS11OeW1Nh8&libraries=places&callback=initAutocomplete"></script>
+
+    <style>
+        #map { height: 400px; width: 100%; }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+                </li>
+                <li class="nav-item d-none d-sm-inline-block">
+                    <a href="homepage.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item d-none d-sm-inline-block">
+                    <a href="destinations.html" class="nav-link">Destinations</a>
+                </li>
+                <li class="nav-item d-none d-sm-inline-block">
+                    <a href="booking-history.html" class="nav-link">Booking History</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="logout.html" role="button"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </li>
+            </ul>
+        </nav>
+
+        <aside class="main-sidebar sidebar-dark-primary elevation-4">
+            <a href="homepage.html" class="brand-link">
+                <img src="dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
+                <span class="brand-text font-weight-light">Tourism Dashboard</span>
+            </a>
+            <div class="sidebar">
+                <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+                    <div class="image">
+                        <img src="dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
+                    </div>
+                    <div class="info">
+                        <a href="#" class="d-block">Admin</a>
+                    </div>
+                </div>
+                <nav class="mt-2">
+                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                        <li class="nav-item">
+                            <a href="homepage.html" class="nav-link">
+                                <i class="nav-icon fas fa-home"></i>
+                                <p>Homepage</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="user-registration.html" class="nav-link">
+                                <i class="nav-icon fas fa-user-plus"></i>
+                                <p>User Registration</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="user-profile.html" class="nav-link">
+                                <i class="nav-icon fas fa-user"></i>
+                                <p>User Profile</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="destinations.html" class="nav-link">
+                                <i class="nav-icon fas fa-map-marker-alt"></i>
+                                <p>Destinations</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="destination-details.html" class="nav-link">
+                                <i class="nav-icon fas fa-info-circle"></i>
+                                <p>Destination Details</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="booking.html" class="nav-link">
+                                <i class="nav-icon fas fa-calendar-check"></i>
+                                <p>Booking</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="booking-history.html" class="nav-link">
+                                <i class="nav-icon fas fa-history"></i>
+                                <p>Booking History</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="trip-visualization.html" class="nav-link">
+                                <i class="nav-icon fas fa-map"></i>
+                                <p>Trip Visualization</p>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </aside>
+        <div id="header"></div>
+
+        <div class="content-wrapper">
+            <section class="content">
+                <h2>Your Trip Visualization</h2>
+                <div>
+                    <label for="startDestination">Start Destination:</label>
+                    <input id="startDestination" class="form-control" type="text" placeholder="Search Start Destination">
+                    <label for="endDestination">End Destination:</label>
+                    <input id="endDestination" class="form-control" type="text" placeholder="Search End Destination">
+                    <button class="btn btn-primary" id="visualizeRoute">Visualize Route</button>
+                </div>
+                <div id="map"></div>
+                <form id="routeDetailsForm" style="margin-top: 20px;">
+                    <h4>Route Details:</h4>
+                    <div><label>Distance: </label><span id="routeDistance"></span></div>
+                    <div><label>Duration: </label><span id="routeDuration"></span></div>
+                    <div><label>Route Steps: </label><span id="routeSteps"></span></div>
+                </form>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        let startLat, startLng, endLat, endLng;
+
+        // Initialize Google Maps and Autocomplete
+        function initAutocomplete() {
+            const map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 6,
+                center: { lat: -34.397, lng: 150.644 }
+            });
+
+            const autocompleteStart = new google.maps.places.Autocomplete(document.getElementById('startDestination'));
+            const autocompleteEnd = new google.maps.places.Autocomplete(document.getElementById('endDestination'));
+
+            // Set up event listeners for destination changes
+            autocompleteStart.addListener('place_changed', function () {
+                const place = autocompleteStart.getPlace();
+                if (place.geometry) {
+                    startLat = place.geometry.location.lat();
+                    startLng = place.geometry.location.lng();
+                }
+            });
+
+            autocompleteEnd.addListener('place_changed', function () {
+                const place = autocompleteEnd.getPlace();
+                if (place.geometry) {
+                    endLat = place.geometry.location.lat();
+                    endLng = place.geometry.location.lng();
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            $('#visualizeRoute').click(function () {
+                // Ensure valid coordinates before making request
+                if (startLat && startLng && endLat && endLng) {
+                    const request = {
+                        origin: { lat: startLat, lng: startLng },
+                        destination: { lat: endLat, lng: endLng },
+                        travelMode: google.maps.TravelMode.DRIVING
+                    };
+
+                    const map = new google.maps.Map(document.getElementById('map'), {
+                        zoom: 6,
+                        center: { lat: startLat, lng: startLng }
+                    });
+
+                    const directionsRenderer = new google.maps.DirectionsRenderer();
+                    const directionsService = new google.maps.DirectionsService();
+                    directionsRenderer.setMap(map);
+
+                    directionsService.route(request, function (result, status) {
+                        if (status === google.maps.DirectionsStatus.OK) {
+                            directionsRenderer.setDirections(result);
+
+                            // Extract and display route details
+                            const route = result.routes[0].legs[0];
+                            $('#routeDistance').text(route.distance.text);
+                            $('#routeDuration').text(route.duration.text);
+                            $('#routeSteps').html(route.steps.map(step => step.instructions).join('<br>'));
+                        } else if (status === google.maps.DirectionsStatus.ZERO_RESULTS) {
+                            alert('No route could be found between the specified locations.');
+                        } else {
+                            console.error('Directions request failed due to ' + status);
+                        }
+                    });
+                } else {
+                    alert('Please select both start and end destinations.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

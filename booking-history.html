@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Booking History</title>
+    <link rel="stylesheet" href="css/adminlte.min.css">
+    <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="dist/css/adminlte.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="wrapper">
+        <!-- Navbar and Sidebar Code (same as you provided) -->
+        <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+                </li>
+                <li class="nav-item d-none d-sm-inline-block">
+                    <a href="homepage.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item d-none d-sm-inline-block">
+                    <a href="destinations.html" class="nav-link">Destinations</a>
+                </li>
+                <li class="nav-item d-none d-sm-inline-block">
+                    <a href="booking-history.html" class="nav-link">Booking History</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="logout.html" role="button"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </li>
+            </ul>
+        </nav>
+
+        <aside class="main-sidebar sidebar-dark-primary elevation-4">
+            <a href="homepage.html" class="brand-link">
+                <img src="dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
+                <span class="brand-text font-weight-light">Tourism Dashboard</span>
+            </a>
+            <div class="sidebar">
+                <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+                    <div class="image">
+                        <img src="dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
+                    </div>
+                    <div class="info">
+                        <a href="#" class="d-block">Admin</a>
+                    </div>
+                </div>
+                <nav class="mt-2">
+                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                        <li class="nav-item">
+                            <a href="homepage.html" class="nav-link">
+                                <i class="nav-icon fas fa-home"></i>
+                                <p>Homepage</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="user-registration.html" class="nav-link">
+                                <i class="nav-icon fas fa-user-plus"></i>
+                                <p>User Registration</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="user-profile.html" class="nav-link">
+                                <i class="nav-icon fas fa-user"></i>
+                                <p>User Profile</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="destinations.html" class="nav-link">
+                                <i class="nav-icon fas fa-map-marker-alt"></i>
+                                <p>Destinations</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="destination-details.html" class="nav-link">
+                                <i class="nav-icon fas fa-info-circle"></i>
+                                <p>Destination Details</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="booking.html" class="nav-link">
+                                <i class="nav-icon fas fa-calendar-check"></i>
+                                <p>Booking</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="booking-history.html" class="nav-link">
+                                <i class="nav-icon fas fa-history"></i>
+                                <p>Booking History</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="trip-visualization.html" class="nav-link">
+                                <i class="nav-icon fas fa-map"></i>
+                                <p>Trip Visualization</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="reviews.html" class="nav-link">
+                                <i class="nav-icon fas fa-rating"></i>
+                                <p>Rate us</p>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </aside>
+        <div id="header"></div>
+        
+        <div class="content-wrapper">
+            <section class="content">
+                <h2>Booking History</h2>
+                <div id="bookingHistory">
+                    <!-- Booking records will appear here -->
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="dist/js/adminlte.min.js"></script>
+    <script>
+        $(function() {
+            // Function to format date in "DD-MM-YYYY" format
+            function formatDate(dateStr) {
+                const date = new Date(dateStr);
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = date.getFullYear();
+                return `${day}-${month}-${year}`;
+            }
+
+            // Fetch the booking history for the user
+            $.ajax({
+                url: "http://localhost:5000/api/bookings",
+                method: "GET",
+                success: function(bookings) {
+                    let html = "<table class='table'><thead><tr><th>Destination</th><th>Travel Date</th><th>Participants</th><th>Actions</th></tr></thead><tbody>";
+                    bookings.forEach(booking => {
+                        html += `
+                            <tr>
+                                <td>${booking.destination_id}</td>
+                                <td>${formatDate(booking.travel_date)}</td> <!-- Format the date -->
+                                <td>${booking.participants}</td>
+                                <td>
+                                    <a href="booking-edit.html?id=${booking.id}" class="btn btn-warning btn-sm">Edit</a>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteBooking(${booking.id})">Delete</button>
+                                </td>
+                            </tr>`;
+                    });
+                    html += "</tbody></table>";
+                    $("#bookingHistory").html(html);
+                },
+                error: function(err) {
+                    alert("Failed to load booking history!");
+                }
+            });
+        });
+
+        function deleteBooking(bookingId) {
+            if (confirm("Are you sure you want to delete this booking?")) {
+                $.ajax({
+                    url: `http://localhost:5000/api/bookings/${bookingId}`,
+                    method: "DELETE",
+                    success: function(response) {
+                        alert(response.message);
+                        location.reload(); // Reload to update the booking history
+                    },
+                    error: function(err) {
+                        alert("Failed to delete booking!");
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>

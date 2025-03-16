@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View All Reviews</title>
+    <link rel="stylesheet" href="css/adminlte.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f6f9;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .table {
+            border-collapse: collapse;
+            width: 100%;
+            background-color: #ffffff;
+        }
+        .table th, .table td {
+            padding: 12px 20px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        .table th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .table-striped tbody tr:nth-child(odd) {
+            background-color: #f9f9f9;
+        }
+        .table-striped tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+        .btn {
+            padding: 8px 16px;
+            font-size: 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        h2 {
+            font-size: 30px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .page-header .btn {
+            margin-right: 10px;
+        }
+        .back-btn {
+            background-color: #6c757d;
+        }
+        .back-btn:hover {
+            background-color: #5a6268;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h2>All Reviews</h2>
+        <button class="btn back-btn" onclick="window.history.back()">Back</button>
+    </div>
+    
+    <!-- Table to display reviews -->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>User</th>
+                <th>Destination</th>
+                <th>Rating</th>
+                <th>Review</th>
+                <th>Date</th>
+                <th>Approved</th>
+            </tr>
+        </thead>
+        <tbody id="reviewsTable">
+            <!-- Reviews will be dynamically inserted here -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    $(document).ready(function () {
+        function fetchReviews() {
+            $.ajax({
+                url: "http://localhost:5000/api/reviews",
+                method: "GET",
+                success: function (reviews) {
+                    const tableRows = reviews.map((review) => `
+                        <tr>
+                            <td>${review.id}</td>
+                            <td>${review.user_name}</td>
+                            <td>${review.destination_name}</td>
+                            <td>${review.rating}</td>
+                            <td>${review.review || "No Review"}</td>
+                            <td>${review.created_at}</td>
+                            <td>${review.is_approved ? "Yes" : "No"}</td>
+                        </tr>
+                    `).join("");
+                    $("#reviewsTable").html(tableRows);
+                },
+                error: function () {
+                    alert("Failed to fetch reviews.");
+                }
+            });
+        }
+
+        fetchReviews();
+    });
+</script>
+
+</body>
+</html>

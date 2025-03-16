@@ -1,0 +1,129 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Destination - Travel Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/css/adminlte.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body class="hold-transition sidebar-mini">
+    <div class="wrapper">
+        <!-- Main Sidebar Container -->
+        <aside class="main-sidebar sidebar-dark-primary elevation-4">
+            <a href="#" class="brand-link">
+                <span class="brand-text font-weight-light">Travel Management</span>
+            </a>
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <nav class="mt-2">
+                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                        <li class="nav-item">
+                            <a href="add-destination.html" class="nav-link active">
+                                <i class="nav-icon fas fa-plus"></i>
+                                <p>Add Destination</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="edit-destination.html" class="nav-link">
+                                <i class="nav-icon fas fa-cogs"></i>
+                                <p>Manage Destinations</p>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Content Wrapper -->
+        <div class="content-wrapper">
+            <div class="content-header">
+                <div class="container-fluid">
+                    <h1 class="m-0 text-dark">Add Destination</h1>
+                </div>
+            </div>
+
+            <div class="content">
+                <div class="container-fluid">
+                    <form id="add-destination-form">
+                        <div class="form-group">
+                            <label for="name">Destination Name</label>
+                            <input type="text" id="name" class="form-control" placeholder="Enter destination name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <textarea id="description" class="form-control" placeholder="Enter description" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="latitude">Latitude</label>
+                            <input type="number" id="latitude" class="form-control" step="0.000001" placeholder="Enter latitude" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="longitude">Longitude</label>
+                            <input type="number" id="longitude" class="form-control" step="0.000001" placeholder="Enter longitude" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="image">Image URL</label>
+                            <input type="url" id="image" class="form-control" placeholder="Enter image URL">
+                        </div>
+                        <div class="form-group">
+                            <label for="price">Price</label>
+                            <input type="number" id="price" class="form-control" placeholder="Enter tour price" required>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Add Destination</button>
+                        
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="main-footer">
+            <div class="float-right d-none d-sm-block">
+                <b>Version</b> 3.1.0
+            </div>
+            <strong>&copy; 2024 Travel Management System</strong>
+        </footer>
+    </div>
+
+    <script>
+        $('#add-destination-form').on('submit', function (e) {
+            e.preventDefault();
+        
+            const name = $('#name').val();
+            const description = $('#description').val();
+            const latitude = $('#latitude').val();
+            const longitude = $('#longitude').val();
+            const image = $('#image').val();
+            const price = $('#price').val(); // Capture the price
+        
+            $.ajax({
+                url: 'http://localhost:5000/api/ent/destinations',
+                method: 'POST',
+                data: {
+                    name: name,
+                    description: description,
+                    latitude: latitude,
+                    longitude: longitude,
+                    image: image,
+                    price: price // Send the price as part of the data
+                },
+                success: function (response) {
+                    alert('Destination added successfully');
+                    // Reset form
+                    $('#add-destination-form')[0].reset();
+                },
+                error: function () {
+                    alert('Error adding destination');
+                }
+            });
+        });
+        
+    </script>
+</body>
+
+</html>

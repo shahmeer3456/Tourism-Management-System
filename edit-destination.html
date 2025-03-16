@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Manage Destinations</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="wrapper">
+         <!-- Main Sidebar Container -->
+         <aside class="main-sidebar sidebar-dark-primary elevation-4">
+            <a href="#" class="brand-link">
+                <span class="brand-text font-weight-light">Travel Management</span>
+            </a>
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <nav class="mt-2">
+                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                        <li class="nav-item">
+                            <a href="add-destination.html" class="nav-link active">
+                                <i class="nav-icon fas fa-plus"></i>
+                                <p>Add Destination</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="edit-destination.html" class="nav-link">
+                                <i class="nav-icon fas fa-cogs"></i>
+                                <p>Manage Destinations</p>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="content-wrapper">
+            <section class="content">
+                <h2>Manage Destinations</h2>
+                <div id="destinations-list">
+                    <!-- Destinations will be dynamically loaded here -->
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Edit Destination Modal -->
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Edit Destination</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit-destination-form">
+                        <input type="hidden" id="destination-id" />
+                        <div class="form-group">
+                            <label for="edit-name">Destination Name</label>
+                            <input type="text" id="edit-name" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-description">Description</label>
+                            <textarea id="edit-description" class="form-control" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-latitude">Latitude</label>
+                            <input type="number" id="edit-latitude" class="form-control" step="0.000001" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-longitude">Longitude</label>
+                            <input type="number" id="edit-longitude" class="form-control" step="0.000001" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-price">Price</label>
+                            <input type="number" id="edit-price" class="form-control" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveChanges">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: 'http://localhost:5000/api/destinations',
+                method: 'GET',
+                success: function (data) {
+                    let destinationsHtml = '';
+                    data.forEach(destination => {
+                        destinationsHtml += `
+                            <div class="destination">
+                                <h3>${destination.name}</h3>
+                                <p>${destination.description}</p>
+                                <p><strong>Price:</strong> $${destination.price}</p>
+                                <button class="btn btn-warning" onclick="editDestination(${destination.id})">Edit</button>
+                                <button class="btn btn-danger" onclick="deleteDestination(${destination.id})">Delete</button>
+                            </div>
+                        `;
+                    });
+                    $('#destinations-list').html(destinationsHtml);
+                },
+                error: function () {
+                    console.error('Error fetching destinations.');
+                }
+            });
+        });
+
+        function editDestination(id) {
+            // Fetch destination data and populate the modal form for editing
+            $.ajax({
+                url: `http://localhost:5000/api/destinations/single/${id}`,
+                method: 'GET',
+                success: function (data) {
+                    // Populate the modal form with current destination data
+                    $('#destination-id').val(data.id);
+                    $('#edit-name').val(data.name);
+                    $('#edit-description').val(data.description);
+                    $('#edit-latitude').val(data.latitude);
+                    $('#edit-longitude').val(data.longitude);
+                    $('#edit-price').val(data.price);
+
+                    // Show the modal
+                    $('#editModal').modal('show');
+                },
+                error: function () {
+                    console.error('Error fetching destination data.');
+                }
+            });
+        }
+
+        // Handle Save Changes
+        $('#saveChanges').click(function () {
+            const id = $('#destination-id').val();
+            const name = $('#edit-name').val();
+            const description = $('#edit-description').val();
+            const latitude = $('#edit-latitude').val();
+            const longitude = $('#edit-longitude').val();
+            const price = $('#edit-price').val();
+
+            $.ajax({
+                url: `http://localhost:5000/api/destinations/${id}`,
+                method: 'PUT',
+                data: { name, description, latitude, longitude, price },
+                success: function () {
+                    alert('Destination updated successfully');
+                    $('#editModal').modal('hide');
+                    location.reload(); // Reload destinations list
+                },
+                error: function () {
+                    alert('Error updating destination');
+                }
+            });
+        });
+
+        function deleteDestination(id) {
+            $.ajax({
+                url: `http://localhost:5000/api/del/destinations/${id}`,
+                method: 'DELETE',
+                success: function () {
+                    alert('Destination deleted successfully');
+                    location.reload(); // Reload the destinations list
+                },
+                error: function () {
+                    alert('Error deleting destination');
+                }
+            });
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/js/adminlte.min.js"></script>
+</body>
+</html>
